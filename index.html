@@ -11,7 +11,7 @@
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="styles.css?v=20260929-4">
+    <link rel="stylesheet" href="styles.css?v=20261012">
 </head>
 <body>
     <!-- Pantalla de inicio para interacción (Requerida por navegadores para audio) -->
@@ -232,6 +232,86 @@
                 </div>
             </div>
         </section>
+
+        <!-- Autotest Interactivo de Inteligencia Emocional -->
+        <section class="section" id="autotest-section">
+            <div class="container">
+                <div class="glass-card autotest-card">
+                    <div class="text-center mb-4">
+                        <div class="hero-badge" style="margin-bottom: 0.75rem;">
+                            <span class="badge-dot" style="background:#10b981; box-shadow: 0 0 10px #10b981;"></span>
+                            <span>Participación de la Audiencia</span>
+                        </div>
+                        <h2 class="section-title" style="margin-bottom: 0.5rem;">🧪 Autotest de Inteligencia Emocional</h2>
+                        <p class="subtitle" style="font-size: 1.05rem; margin-bottom: 1.5rem;">
+                            Descubre tu perfil de Inteligencia Emocional respondiendo 5 situaciones cotidianas basadas en los pilares de Daniel Goleman.
+                        </p>
+                    </div>
+
+                    <!-- Test Container -->
+                    <div id="quiz-container">
+                        <div class="quiz-header">
+                            <div class="quiz-step-info">
+                                <span id="quiz-step-text">Pregunta 1 de 5</span>
+                                <span id="quiz-pillar-badge" class="topic-badge" style="background: rgba(124, 58, 237, 0.2); border-color: rgba(124, 58, 237, 0.5); color: #c4b5fd;">Autoconciencia</span>
+                            </div>
+                            <div class="progress-bar-bg" style="margin-top: 0.75rem;">
+                                <div id="quiz-progress-bar" class="progress-bar-fill" style="width: 20%; background: linear-gradient(90deg, #7c3aed, #0ea5e9);"></div>
+                            </div>
+                        </div>
+
+                        <div class="quiz-question-box mt-4">
+                            <h3 id="quiz-question-title" class="quiz-question">¿Reconozco con claridad qué emoción estoy experimentando ante momentos de tensión o presión?</h3>
+                            <p id="quiz-question-sub" class="text-muted" style="font-size: 0.9rem; margin-bottom: 1.5rem;">Selecciona la opción que mejor te describa:</p>
+                            
+                            <div class="quiz-options-grid" id="quiz-options">
+                                <button class="quiz-option-btn" data-value="1">
+                                    <span class="option-score">1</span>
+                                    <span class="option-label">Casi nunca</span>
+                                </button>
+                                <button class="quiz-option-btn" data-value="2">
+                                    <span class="option-score">2</span>
+                                    <span class="option-label">Rara vez</span>
+                                </button>
+                                <button class="quiz-option-btn" data-value="3">
+                                    <span class="option-score">3</span>
+                                    <span class="option-label">A veces</span>
+                                </button>
+                                <button class="quiz-option-btn" data-value="4">
+                                    <span class="option-score">4</span>
+                                    <span class="option-label">Frecuentemente</span>
+                                </button>
+                                <button class="quiz-option-btn" data-value="5">
+                                    <span class="option-score">5</span>
+                                    <span class="option-label">Siempre</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Result Area (Hidden initially) -->
+                    <div id="quiz-result-container" class="hidden text-center">
+                        <div class="result-score-circle">
+                            <span id="quiz-score-number" class="score-number">23</span>
+                            <span class="score-total">/ 25</span>
+                        </div>
+                        <h3 id="quiz-result-title" class="highlight-text mt-2" style="font-size: 1.8rem;">Perfil: Líder Resiliente y Empático</h3>
+                        <p id="quiz-result-description" class="lead mt-2" style="max-width: 650px; margin: 0 auto; color: var(--text-muted); font-size: 1rem;">
+                            Tienes una alta capacidad para reconocer emociones y utilizarlas constructivamente.
+                        </p>
+
+                        <!-- Breakdown bars -->
+                        <div class="pillars-breakdown-box mt-4" id="pillars-breakdown">
+                            <!-- Injected by JS -->
+                        </div>
+
+                        <div class="mt-4">
+                            <button id="btn-restart-quiz" class="btn-secondary"><i class="fa-solid fa-rotate-left"></i> Repetir Autotest</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Leader Access Modal -->
@@ -252,6 +332,11 @@
                 <button id="btn-login" class="btn-primary">Entrar</button>
             </div>
             <p id="login-error" class="error-msg"></p>
+            <div class="admin-modal-switch">
+                <button type="button" id="btn-switch-to-admin" class="btn-link-subtle">
+                    <i class="fa-solid fa-shield-halved"></i> Acceso Administrador
+                </button>
+            </div>
         </div>
     </div>
 
@@ -284,10 +369,28 @@
 
             <!-- Timer Area -->
             <div id="timer-area" class="timer-area hidden">
-                <div class="result-box glass-card text-center mb-4">
-                    <h3>Tema Seleccionado:</h3>
-                    <h2 id="result-topic" class="highlight-text">Autoconciencia</h2>
-                    <p id="result-desc">Debatan sobre cómo aplicar esto en un caso práctico.</p>
+                <div class="result-box glass-card mb-4" id="case-study-box">
+                    <div class="text-center">
+                        <span class="topic-tag-large" id="result-badge">Autoconciencia</span>
+                        <h2 id="result-topic" class="highlight-text mt-2">Autoconciencia</h2>
+                    </div>
+
+                    <!-- Caso Práctico Detallado -->
+                    <div class="case-study-content mt-3">
+                        <div class="case-scenario">
+                            <span class="case-label"><i class="fa-solid fa-briefcase"></i> Caso Real para Resolver:</span>
+                            <p id="result-desc" class="case-text">Debatan sobre cómo aplicar esto en un caso práctico.</p>
+                        </div>
+
+                        <!-- Preguntas Guía -->
+                        <div class="case-questions mt-3">
+                            <span class="questions-label"><i class="fa-solid fa-comments"></i> Preguntas Guía para el Debate en Equipo:</span>
+                            <ul id="result-questions" class="case-questions-list">
+                                <li>Pregunta 1</li>
+                                <li>Pregunta 2</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
                 <div class="timer-display">
                     <span id="time-display">03:00</span>
@@ -316,12 +419,103 @@
         <a href="#" class="footer-credit">steven.dev</a>
     </footer>
 
+    <!-- Floating Admin Trigger Button -->
+    <button id="btn-admin-trigger" class="admin-float-btn" title="Panel de Administrador">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>Admin</span>
+    </button>
+
     </div> <!-- End app-content -->
+
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="modal">
+        <div class="modal-content glass-card">
+            <span class="close-modal" id="close-admin-login">&times;</span>
+            <div style="font-size: 2.2rem; margin-bottom: 0.5rem; color: #f59e0b;">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h2>Acceso Administrador</h2>
+            <p>Ingresa la contraseña de administrador para gestionar respuestas y evaluaciones.</p>
+            <div class="input-group" style="flex-direction: column;">
+                <div style="position: relative; width: 100%;">
+                    <input type="password" id="admin-password" placeholder="Contraseña de Administrador" style="width: 100%; padding-right: 40px;">
+                    <button type="button" id="btn-toggle-admin-pass" class="btn-icon-eye">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+                <button id="btn-admin-login" class="btn-primary" style="margin-top: 10px;">Ingresar al Panel</button>
+            </div>
+            <p id="admin-login-error" class="error-msg"></p>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Modal -->
+    <div id="admin-dashboard-modal" class="modal admin-modal-wide">
+        <div class="modal-content glass-card admin-dashboard-content">
+            <div class="admin-dash-header">
+                <div class="admin-dash-title">
+                    <span class="admin-badge"><i class="fa-solid fa-crown"></i> Steven / Admin</span>
+                    <h2>Panel de Control y Evaluación</h2>
+                </div>
+                <div class="admin-dash-actions">
+                    <button id="btn-export-report" class="btn-secondary btn-sm" title="Imprimir / Exportar Reporte en PDF">
+                        <i class="fa-solid fa-print"></i> Exportar
+                    </button>
+                    <button id="btn-copy-summary" class="btn-secondary btn-sm" title="Copiar resumen al portapapeles">
+                        <i class="fa-regular fa-copy"></i> Copiar Resumen
+                    </button>
+                    <button id="btn-admin-logout" class="btn-secondary btn-sm" title="Cerrar Sesión">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    </button>
+                    <span class="close-modal" id="close-admin-dash">&times;</span>
+                </div>
+            </div>
+
+            <!-- Admin KPIs -->
+            <div class="admin-stats-grid mt-4">
+                <div class="admin-stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="stat-total-responses">0</span>
+                        <span class="stat-label">Respuestas Recibidas</span>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="stat-icon" style="color: #f59e0b;"><i class="fa-solid fa-star"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="stat-avg-rating">-</span>
+                        <span class="stat-label">Promedio Calificación</span>
+                    </div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="stat-icon" style="color: #10b981;"><i class="fa-solid fa-users"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="stat-participating-leaders">0 / 4</span>
+                        <span class="stat-label">Líderes Activos</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Responses Table / Cards -->
+            <div class="admin-responses-container mt-4">
+                <div class="admin-section-header">
+                    <h3>Respuestas y Evaluaciones en Tiempo Real</h3>
+                    <div class="admin-filter-tools">
+                        <input type="text" id="admin-search-responses" placeholder="Buscar por líder o tema..." class="admin-search-input">
+                    </div>
+                </div>
+
+                <div id="admin-responses-list" class="admin-responses-list">
+                    <!-- Populated dynamically by script.js -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Toast Notifications Container -->
     <div id="toast-container" class="toast-container"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="script.js?v=20260929"></script>
+    <script src="script.js?v=20261012"></script>
 </body>
 </html>

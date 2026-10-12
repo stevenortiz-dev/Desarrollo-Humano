@@ -294,11 +294,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Roulette Logic ---
     const topics = [
-        { title: "Autoconciencia",     desc: "Evalúa cómo identificarías tus emociones en una situación de alta presión.",                                            color: "#7c3aed" },
-        { title: "Autorregulación",    desc: "Plantea cómo manejarías un impulso negativo tras recibir una crítica injusta.",                                         color: "#0ea5e9" },
-        { title: "Motivación",         desc: "Debate sobre cómo mantener el enfoque y la energía cuando un proyecto fracasa.",                                        color: "#f59e0b" },
-        { title: "Empatía",            desc: "Discute cómo abordarías a un compañero de equipo que está pasando por un mal momento personal.",                        color: "#10b981" },
-        { title: "Habilidades Sociales", desc: "Ejemplifica cómo construirías redes de apoyo dentro de un nuevo entorno laboral.",                                    color: "#ef4444" }
+        {
+            title: "Autoconciencia",
+            case: "Faltan 20 minutos para la entrega final del proyecto y el servidor sufre una falla crítica. Comienzas a sentir ira, palpitaciones intensas y una fuerte tentación de culpar al compañero que subió el último archivo.",
+            questions: [
+                "¿Cómo identificas y gestionas físicamente esas emociones antes de actuar por impulso?",
+                "¿Qué diálogo interno consciente utilizas para transformar la culpa en enfoque hacia la solución técnica?"
+            ],
+            color: "#7c3aed"
+        },
+        {
+            title: "Autorregulación",
+            case: "En plena reunión con directivos y clientes, un colega desacredita públicamente tu propuesta con comentarios sarcásticos e injustos frente a todos los presentes.",
+            questions: [
+                "¿Qué técnica de autocontrol aplicas en los primeros 10 segundos para no reaccionar a la defensiva?",
+                "¿Cómo respondes con serenidad, asertividad y profesionalismo sin perder la compostura ni validar la agresión?"
+            ],
+            color: "#0ea5e9"
+        },
+        {
+            title: "Motivación",
+            case: "Tras 4 semanas de esfuerzo colectivo continuo, la dirección decide cancelar el proyecto en el que tu equipo depositó todo su entusiasmo. El desánimo y la frustración invaden al grupo.",
+            questions: [
+                "¿Cómo encuentras automotivación interna cuando los factores y recompensas externas fallan?",
+                "¿Qué mensaje y estrategia concreta le transmites a tu equipo para reactivar el optimismo y canalizar la energía en la siguiente meta?"
+            ],
+            color: "#f59e0b"
+        },
+        {
+            title: "Empatía",
+            case: "Un compañero que siempre fue muy productivo y proactivo lleva dos semanas llegando tarde, desanimado y con errores constantes en sus entregas, pero se cierra y afirma que 'todo está bien'.",
+            questions: [
+                "¿Cómo creas un espacio seguro de confianza para acercarte a dialogar sin juzgar ni invadir su privacidad?",
+                "¿Cómo equilibras la comprensión hacia su situación personal con la responsabilidad de cumplir con las metas del equipo?"
+            ],
+            color: "#10b981"
+        },
+        {
+            title: "Habilidades Sociales",
+            case: "Dos integrantes clave de tu equipo tienen un desacuerdo frontal sobre la arquitectura del proyecto y rehúsan hablarse directamente, paralizando el avance de todo el equipo a pocos días del cierre.",
+            questions: [
+                "¿Cómo ejerces un liderazgo mediador para que ambas partes se sientan escuchadas y depongan posturas rígidas?",
+                "¿Qué dinámica o acuerdo de colaboración propones para restaurar la confianza y lograr un consenso funcional?"
+            ],
+            color: "#ef4444"
+        }
     ];
 
     const wheel = document.getElementById('wheel');
@@ -306,6 +346,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const timerArea = document.getElementById('timer-area');
     const resultTopic = document.getElementById('result-topic');
     const resultDesc = document.getElementById('result-desc');
+    const resultBadge = document.getElementById('result-badge');
+    const resultQuestions = document.getElementById('result-questions');
 
     let currentRotation = 0;
     let isSpinning = false;
@@ -392,8 +434,26 @@ document.addEventListener('DOMContentLoaded', () => {
             wheel.classList.remove('spinning');
             markTopicUsed(targetTopic.title);
             updateUsedBadges();
+
             resultTopic.textContent = targetTopic.title;
-            resultDesc.textContent = targetTopic.desc;
+            resultDesc.textContent = targetTopic.case;
+
+            if (resultBadge) {
+                resultBadge.textContent = targetTopic.title;
+                resultBadge.style.background = `${targetTopic.color}25`;
+                resultBadge.style.borderColor = `${targetTopic.color}60`;
+                resultBadge.style.color = targetTopic.color;
+            }
+
+            if (resultQuestions && targetTopic.questions) {
+                resultQuestions.innerHTML = '';
+                targetTopic.questions.forEach(q => {
+                    const li = document.createElement('li');
+                    li.textContent = q;
+                    resultQuestions.appendChild(li);
+                });
+            }
+
             timerArea.classList.remove('hidden');
 
             confetti({
@@ -508,9 +568,80 @@ document.addEventListener('DOMContentLoaded', () => {
     const responseText = document.getElementById('leader-response-text');
     const responsesGrid = document.getElementById('responses-grid');
 
-    function renderResponses() {
+    // --- Live Sync Logic (Cross-tab / Cross-window Realtime) ---
+    const syncChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('ie_sync_hub') : null;
+
+    function broadcastSyncMessage(msg) {
+        if (syncChannel) {
+            try { syncChannel.postMessage(msg); } catch (e) { console.warn(e); }
+        }
+    }
+
+    function handleIncomingSync(msg) {
+        if (!msg) return;
+        if (msg.type === 'NEW_RESPONSE' && msg.response) {
+            renderResponses(msg.response.id);
+            updateResponseCounter();
+            if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
+            playWin();
+            showCustomToast(`🔔 ¡Nueva respuesta recibida de ${msg.response.leader}! (${msg.response.topic})`, 'fa-bell', '#10b981');
+            confetti({
+                particleCount: 75,
+                spread: 70,
+                origin: { y: 0.7 },
+                colors: ['#10b981', '#ffffff', '#38bdf8', '#f59e0b']
+            });
+        } else if (msg.type === 'WALL_CLEARED') {
+            usedTopics = [];
+            renderResponses();
+            updateResponseCounter();
+            updateUsedBadges();
+            updateSpinButton();
+            document.querySelectorAll('.topic-badge').forEach(b => b.classList.remove('used'));
+            if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
+            showCustomToast('Muro reiniciado en tiempo real.', 'fa-rotate-right', '#f59e0b');
+        } else if (msg.type === 'EVAL_UPDATED') {
+            renderResponses();
+            if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
+        }
+    }
+
+    if (syncChannel) {
+        syncChannel.onmessage = (event) => {
+            handleIncomingSync(event.data);
+        };
+    }
+
+    // Native storage event listener fallback for browsers or different windows
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'ie_responses') {
+            const list = getResponses();
+            const latest = list[list.length - 1];
+            renderResponses(latest ? latest.id : null);
+            updateResponseCounter();
+            if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
+            if (latest) {
+                playWin();
+                showCustomToast(`🔔 ¡Nueva respuesta de: ${latest.leader}!`, 'fa-bell', '#10b981');
+            }
+        } else if (e.key === 'ie_used_topics') {
+            usedTopics = JSON.parse(localStorage.getItem('ie_used_topics')) || [];
+            updateUsedBadges();
+            updateSpinButton();
+        }
+    });
+
+    function getResponses() {
+        return JSON.parse(localStorage.getItem('ie_responses')) || [];
+    }
+
+    function saveResponses(list) {
+        localStorage.setItem('ie_responses', JSON.stringify(list));
+    }
+
+    function renderResponses(highlightId = null) {
         responsesGrid.innerHTML = '';
-        const savedResponses = JSON.parse(localStorage.getItem('ie_responses')) || [];
+        const savedResponses = getResponses();
 
         if (savedResponses.length === 0) {
             responsesGrid.innerHTML = '<p class="text-muted" style="grid-column: 1/-1; text-align: center;">Aún no hay respuestas registradas. Realiza la dinámica para verlas aquí.</p>';
@@ -519,11 +650,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         savedResponses.forEach(res => {
             const card = document.createElement('div');
-            card.className = 'card response-card animate-up';
+            const isNew = highlightId && (res.id === highlightId);
+            card.className = `card response-card animate-up ${isNew ? 'card-new-sync' : ''}`;
+            
+            // Rating and feedback badge if admin evaluated
+            let evalHtml = '';
+            if (res.rating && res.rating > 0) {
+                const stars = '★'.repeat(res.rating) + '☆'.repeat(5 - res.rating);
+                evalHtml += `
+                    <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed rgba(255,255,255,0.1); font-size: 0.85rem;">
+                        <span style="color: #f59e0b; font-size: 1rem; letter-spacing: 2px;">${stars}</span>
+                        ${res.feedback ? `<p style="color: #a0a0a0; font-style: italic; margin-top: 4px; font-size: 0.82rem;"><i class="fa-solid fa-comment-dots" style="color: #8b5cf6;"></i> Feedback: "${res.feedback}"</p>` : ''}
+                    </div>
+                `;
+            }
+
             card.innerHTML = `
-                <h4>${res.leader}</h4>
+                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                    <h4>${res.leader}</h4>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">${res.timestamp || ''}</span>
+                </div>
                 <div class="topic">Tema: ${res.topic}</div>
                 <p>${res.text}</p>
+                ${evalHtml}
             `;
             responsesGrid.appendChild(card);
         });
@@ -536,17 +685,33 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const now = new Date();
+        const formattedDate = now.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' }) + ' ' + 
+                              now.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+
         const newResponse = {
+            id: 'resp_' + Date.now(),
             leader: currentLeader,
             topic: resultTopic.textContent,
-            text: text
+            text: text,
+            timestamp: formattedDate,
+            rating: 0,
+            feedback: ''
         };
 
-        const savedResponses = JSON.parse(localStorage.getItem('ie_responses')) || [];
+        const savedResponses = getResponses();
         savedResponses.push(newResponse);
-        localStorage.setItem('ie_responses', JSON.stringify(savedResponses));
+        saveResponses(savedResponses);
 
-        renderResponses();
+        renderResponses(newResponse.id);
+        if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
+        
+        // Broadcast in real-time to other tabs/projector
+        broadcastSyncMessage({
+            type: 'NEW_RESPONSE',
+            response: newResponse
+        });
+
         responseText.value = '';
         document.getElementById('response-form-area').classList.add('hidden');
         rouletteArea.classList.add('hidden');
@@ -562,7 +727,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Counter Logic ---
     function updateResponseCounter() {
-        const savedResponses = JSON.parse(localStorage.getItem('ie_responses')) || [];
+        const savedResponses = getResponses();
         const count = savedResponses.length;
         const total = 4;
         const counterEl = document.getElementById('response-counter');
@@ -594,12 +759,514 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('ie_used_topics');
                 usedTopics = [];
                 renderResponses();
+                if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
                 updateResponseCounter();
                 updateUsedBadges();
                 updateSpinButton();
                 document.querySelectorAll('.topic-badge').forEach(b => b.classList.remove('used'));
+                broadcastSyncMessage({ type: 'WALL_CLEARED' });
             }
         });
     }
 
+    // ==========================================================================
+    // --- ADMIN PANEL & EVALUATION LOGIC ---
+    // ==========================================================================
+
+    const btnAdminTrigger = document.getElementById('btn-admin-trigger');
+    const btnSwitchToAdmin = document.getElementById('btn-switch-to-admin');
+    const adminLoginModal = document.getElementById('admin-login-modal');
+    const adminDashboardModal = document.getElementById('admin-dashboard-modal');
+    const closeAdminLogin = document.getElementById('close-admin-login');
+    const closeAdminDash = document.getElementById('close-admin-dash');
+    const btnAdminLogin = document.getElementById('btn-admin-login');
+    const adminPasswordInput = document.getElementById('admin-password');
+    const adminLoginError = document.getElementById('admin-login-error');
+    const btnToggleAdminPass = document.getElementById('btn-toggle-admin-pass');
+    const btnAdminLogout = document.getElementById('btn-admin-logout');
+    const btnExportReport = document.getElementById('btn-export-report');
+    const btnCopySummary = document.getElementById('btn-copy-summary');
+    const adminSearchInput = document.getElementById('admin-search-responses');
+    const adminResponsesList = document.getElementById('admin-responses-list');
+
+    let isAdminLoggedIn = sessionStorage.getItem('ie_admin_active') === 'true';
+
+    const ADMIN_PASSWORD = '1671172';
+    function getAdminPassword() {
+        return ADMIN_PASSWORD;
+    }
+
+    function showCustomToast(message, icon = 'fa-circle-check', color = '#10b981') {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `<i class="fa-solid ${icon}" style="color: ${color};"></i> <span>${message}</span>`;
+        container.appendChild(toast);
+        void toast.offsetWidth;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 400);
+        }, 3000);
+    }
+
+    function openAdminPanel() {
+        if (isAdminLoggedIn) {
+            renderAdminDashboard();
+            adminDashboardModal.style.display = 'flex';
+        } else {
+            adminLoginModal.style.display = 'flex';
+            adminPasswordInput.value = '';
+            adminLoginError.textContent = '';
+            adminPasswordInput.focus();
+        }
+    }
+
+    if (btnAdminTrigger) {
+        btnAdminTrigger.addEventListener('click', openAdminPanel);
+    }
+
+    if (btnSwitchToAdmin) {
+        btnSwitchToAdmin.addEventListener('click', () => {
+            modal.style.display = 'none';
+            openAdminPanel();
+        });
+    }
+
+    if (closeAdminLogin) {
+        closeAdminLogin.addEventListener('click', () => {
+            adminLoginModal.style.display = 'none';
+        });
+    }
+
+    if (closeAdminDash) {
+        closeAdminDash.addEventListener('click', () => {
+            adminDashboardModal.style.display = 'none';
+        });
+    }
+
+    if (btnToggleAdminPass) {
+        btnToggleAdminPass.addEventListener('click', () => {
+            const isPass = adminPasswordInput.type === 'password';
+            adminPasswordInput.type = isPass ? 'text' : 'password';
+            btnToggleAdminPass.innerHTML = isPass ? '<i class="fa-regular fa-eye-slash"></i>' : '<i class="fa-regular fa-eye"></i>';
+        });
+    }
+
+    function attemptAdminLogin() {
+        const entered = adminPasswordInput.value.trim();
+        const correct = getAdminPassword();
+        if (entered === correct) {
+            isAdminLoggedIn = true;
+            sessionStorage.setItem('ie_admin_active', 'true');
+            adminLoginModal.style.display = 'none';
+            renderAdminDashboard();
+            adminDashboardModal.style.display = 'flex';
+            showCustomToast('¡Bienvenido, Administrador!', 'fa-shield-halved', '#10b981');
+        } else {
+            adminLoginError.textContent = 'Contraseña de administrador incorrecta.';
+            adminPasswordInput.classList.add('shake');
+            setTimeout(() => adminPasswordInput.classList.remove('shake'), 400);
+        }
+    }
+
+    if (btnAdminLogin) btnAdminLogin.addEventListener('click', attemptAdminLogin);
+    if (adminPasswordInput) {
+        adminPasswordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') attemptAdminLogin();
+        });
+    }
+
+    if (btnAdminLogout) {
+        btnAdminLogout.addEventListener('click', () => {
+            isAdminLoggedIn = false;
+            sessionStorage.removeItem('ie_admin_active');
+            adminDashboardModal.style.display = 'none';
+            showCustomToast('Sesión de administrador cerrada.', 'fa-arrow-right-from-bracket', '#f59e0b');
+        });
+    }
+
+    if (btnExportReport) {
+        btnExportReport.addEventListener('click', () => {
+            window.print();
+        });
+    }
+
+    if (btnCopySummary) {
+        btnCopySummary.addEventListener('click', () => {
+            const list = getResponses();
+            if (list.length === 0) {
+                alert('No hay respuestas registradas para copiar.');
+                return;
+            }
+            let summary = `📋 INFORME DE DINÁMICA - INTELIGENCIA EMOCIONAL\n`;
+            summary += `Desarrollo Humano | Equipo: Steven Ortíz, Justin Siesquen, Manuel Gutarra, Joao Piñas, Milton Chupillón\n`;
+            summary += `Total de respuestas: ${list.length}\n`;
+            summary += `--------------------------------------------------\n\n`;
+
+            list.forEach((r, idx) => {
+                summary += `[Grupo ${idx + 1}] Líder: ${r.leader}\n`;
+                summary += `Tema: ${r.topic} | Fecha: ${r.timestamp || 'N/A'}\n`;
+                summary += `Respuesta: ${r.text}\n`;
+                if (r.rating) summary += `Calificación: ${r.rating}/5 estrellas\n`;
+                if (r.feedback) summary += `Feedback: ${r.feedback}\n`;
+                summary += `\n--------------------------------------------------\n\n`;
+            });
+
+            navigator.clipboard.writeText(summary).then(() => {
+                showCustomToast('Resumen copiado al portapapeles con éxito.', 'fa-clipboard-check', '#10b981');
+            }).catch(() => {
+                alert('No se pudo copiar automáticamente. Por favor permite los permisos de portapapeles.');
+            });
+        });
+    }
+
+    if (adminSearchInput) {
+        adminSearchInput.addEventListener('input', () => {
+            renderAdminDashboard();
+        });
+    }
+
+    // Render Admin Dashboard
+    function renderAdminDashboard() {
+        if (!adminResponsesList) return;
+        const allResponses = getResponses();
+        const searchQuery = (adminSearchInput ? adminSearchInput.value.toLowerCase().trim() : '');
+
+        // Update KPIs
+        const statTotal = document.getElementById('stat-total-responses');
+        const statAvg = document.getElementById('stat-avg-rating');
+        const statLeaders = document.getElementById('stat-participating-leaders');
+
+        if (statTotal) statTotal.textContent = allResponses.length;
+
+        const ratedResponses = allResponses.filter(r => r.rating && r.rating > 0);
+        if (statAvg) {
+            if (ratedResponses.length > 0) {
+                const sum = ratedResponses.reduce((acc, r) => acc + r.rating, 0);
+                statAvg.textContent = `${(sum / ratedResponses.length).toFixed(1)} ★`;
+            } else {
+                statAvg.textContent = '-';
+            }
+        }
+
+        const uniqueLeaders = new Set(allResponses.map(r => r.leader));
+        if (statLeaders) statLeaders.textContent = `${uniqueLeaders.size} / 4`;
+
+        // Filter responses
+        const filtered = allResponses.filter(r => {
+            if (!searchQuery) return true;
+            return (r.leader && r.leader.toLowerCase().includes(searchQuery)) ||
+                   (r.topic && r.topic.toLowerCase().includes(searchQuery)) ||
+                   (r.text && r.text.toLowerCase().includes(searchQuery));
+        });
+
+        adminResponsesList.innerHTML = '';
+
+        if (filtered.length === 0) {
+            adminResponsesList.innerHTML = `
+                <div style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-inbox" style="font-size: 2.5rem; margin-bottom: 0.8rem; opacity: 0.5;"></i>
+                    <p>No se encontraron respuestas registradas.</p>
+                </div>
+            `;
+            return;
+        }
+
+        filtered.forEach((res, index) => {
+            const card = document.createElement('div');
+            card.className = 'admin-response-card';
+            
+            // Topic color mapping
+            const topicColors = {
+                "Autoconciencia": "#7c3aed",
+                "Autorregulación": "#0ea5e9",
+                "Motivación": "#f59e0b",
+                "Empatía": "#10b981",
+                "Habilidades Sociales": "#ef4444"
+            };
+            const tColor = topicColors[res.topic] || '#8b5cf6';
+
+            const cardId = res.id || ('resp_' + index);
+
+            // Stars HTML
+            const curRating = res.rating || 0;
+            let starsHtml = '';
+            for (let s = 1; s <= 5; s++) {
+                const activeClass = s <= curRating ? 'active' : '';
+                starsHtml += `<i class="fa-solid fa-star admin-star ${activeClass}" data-card-id="${cardId}" data-star="${s}"></i>`;
+            }
+
+            card.innerHTML = `
+                <div class="admin-card-top">
+                    <div>
+                        <div class="admin-leader-name">
+                            <i class="fa-solid fa-user-tie" style="color: #f59e0b;"></i>
+                            <span>${res.leader}</span>
+                        </div>
+                        <div style="margin-top: 6px; display: flex; align-items: center; gap: 8px;">
+                            <span class="admin-topic-tag" style="background: ${tColor}25; border: 1px solid ${tColor}60; color: ${tColor};">
+                                ${res.topic}
+                            </span>
+                            <span class="admin-timestamp"><i class="fa-regular fa-clock"></i> ${res.timestamp || 'Fecha no registrada'}</span>
+                        </div>
+                    </div>
+                    <button class="btn-delete-response" data-id="${cardId}" title="Eliminar respuesta">
+                        <i class="fa-solid fa-trash"></i> Eliminar
+                    </button>
+                </div>
+                <div class="admin-card-text">
+                    "${res.text}"
+                </div>
+                <div class="admin-eval-box">
+                    <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted);">Calificación:</span>
+                    <div class="admin-stars" id="stars-${cardId}">
+                        ${starsHtml}
+                    </div>
+                    <input type="text" class="admin-feedback-input" id="feedback-${cardId}" placeholder="Comentario o retroalimentación del admin..." value="${res.feedback || ''}">
+                    <button class="btn-save-eval" data-id="${cardId}">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar
+                    </button>
+                </div>
+            `;
+
+            adminResponsesList.appendChild(card);
+        });
+
+        // Attach Star Rating events
+        document.querySelectorAll('.admin-star').forEach(starEl => {
+            starEl.addEventListener('click', (e) => {
+                const cid = e.target.dataset.cardId;
+                const starVal = parseInt(e.target.dataset.star, 10);
+                const starsContainer = document.getElementById('stars-' + cid);
+                if (!starsContainer) return;
+
+                starsContainer.querySelectorAll('.admin-star').forEach(s => {
+                    const val = parseInt(s.dataset.star, 10);
+                    if (val <= starVal) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+                starsContainer.dataset.selectedRating = starVal;
+            });
+        });
+
+        // Attach Save Eval events
+        document.querySelectorAll('.btn-save-eval').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const targetBtn = e.currentTarget;
+                const cid = targetBtn.dataset.id;
+                const starsContainer = document.getElementById('stars-' + cid);
+                const feedbackInput = document.getElementById('feedback-' + cid);
+                
+                let selectedRating = starsContainer && starsContainer.dataset.selectedRating ? 
+                    parseInt(starsContainer.dataset.selectedRating, 10) : null;
+                const feedbackText = feedbackInput ? feedbackInput.value.trim() : '';
+
+                const list = getResponses();
+                const itemIndex = list.findIndex(r => (r.id === cid) || ('resp_' + list.indexOf(r) === cid));
+
+                if (itemIndex !== -1) {
+                    if (selectedRating !== null) list[itemIndex].rating = selectedRating;
+                    list[itemIndex].feedback = feedbackText;
+                    saveResponses(list);
+                    renderResponses();
+                    renderAdminDashboard();
+                    broadcastSyncMessage({ type: 'EVAL_UPDATED' });
+                    showCustomToast('Evaluación guardada con éxito.', 'fa-floppy-disk', '#8b5cf6');
+                }
+            });
+        });
+
+        // Attach Delete events
+        document.querySelectorAll('.btn-delete-response').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const cid = e.currentTarget.dataset.id;
+                if (confirm('¿Deseas eliminar esta respuesta de forma permanente?')) {
+                    let list = getResponses();
+                    list = list.filter((r, idx) => (r.id !== cid) && ('resp_' + idx !== cid));
+                    saveResponses(list);
+                    renderResponses();
+                    renderAdminDashboard();
+                    updateResponseCounter();
+                    broadcastSyncMessage({ type: 'EVAL_UPDATED' });
+                    showCustomToast('Respuesta eliminada.', 'fa-trash', '#ef4444');
+                }
+            });
+        });
+    }
+
+    // ==========================================================================
+    // --- AUTOTEST INTERACTIVO DE INTELIGENCIA EMOCIONAL ---
+    // ==========================================================================
+
+    const autotestQuestions = [
+        {
+            pillar: "Autoconciencia",
+            color: "#7c3aed",
+            question: "¿Reconozco con claridad qué emoción estoy experimentando ante momentos de tensión o presión?"
+        },
+        {
+            pillar: "Autorregulación",
+            color: "#0ea5e9",
+            question: "¿Mantengo la calma y reflexiono conscientemente antes de reaccionar cuando recibo una crítica o situación frustrante?"
+        },
+        {
+            pillar: "Motivación",
+            color: "#f59e0b",
+            question: "¿Encuentro entusiasmo y determinación interna para perseverar en mis objetivos incluso ante los fracasos?"
+        },
+        {
+            pillar: "Empatía",
+            color: "#10b981",
+            question: "¿Percibo con facilidad las necesidades, preocupaciones y estados anímicos de mis compañeros al trabajar en equipo?"
+        },
+        {
+            pillar: "Habilidades Sociales",
+            color: "#ef4444",
+            question: "¿Tengo facilidad para dialogar constructivamente, mediar desacuerdos y motivar a las personas que me rodean?"
+        }
+    ];
+
+    let currentQuizIndex = 0;
+    let quizScores = [];
+
+    const quizContainer = document.getElementById('quiz-container');
+    const quizResultContainer = document.getElementById('quiz-result-container');
+    const quizStepText = document.getElementById('quiz-step-text');
+    const quizPillarBadge = document.getElementById('quiz-pillar-badge');
+    const quizProgressBar = document.getElementById('quiz-progress-bar');
+    const quizQuestionTitle = document.getElementById('quiz-question-title');
+    const quizOptionsContainer = document.getElementById('quiz-options');
+    const btnRestartQuiz = document.getElementById('btn-restart-quiz');
+
+    function loadQuizQuestion(index) {
+        if (!quizQuestionTitle) return;
+        const q = autotestQuestions[index];
+        quizStepText.textContent = `Pregunta ${index + 1} de ${autotestQuestions.length}`;
+        quizPillarBadge.textContent = q.pillar;
+        quizPillarBadge.style.borderColor = `${q.color}60`;
+        quizPillarBadge.style.background = `${q.color}25`;
+        quizPillarBadge.style.color = q.color;
+
+        const pct = ((index + 1) / autotestQuestions.length) * 100;
+        quizProgressBar.style.width = `${pct}%`;
+
+        quizQuestionTitle.textContent = q.question;
+
+        // Reset option buttons state
+        if (quizOptionsContainer) {
+            quizOptionsContainer.querySelectorAll('.quiz-option-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+        }
+    }
+
+    if (quizOptionsContainer) {
+        quizOptionsContainer.querySelectorAll('.quiz-option-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const targetBtn = e.currentTarget;
+                const scoreVal = parseInt(targetBtn.dataset.value, 10);
+                
+                targetBtn.classList.add('selected');
+                playTick();
+                quizScores[currentQuizIndex] = scoreVal;
+
+                setTimeout(() => {
+                    currentQuizIndex++;
+                    if (currentQuizIndex < autotestQuestions.length) {
+                        loadQuizQuestion(currentQuizIndex);
+                    } else {
+                        showQuizResults();
+                    }
+                }, 300);
+            });
+        });
+    }
+
+    function showQuizResults() {
+        if (!quizContainer || !quizResultContainer) return;
+        quizContainer.classList.add('hidden');
+        quizResultContainer.classList.remove('hidden');
+
+        const totalScore = quizScores.reduce((a, b) => a + b, 0);
+        const scoreNumberEl = document.getElementById('quiz-score-number');
+        const titleEl = document.getElementById('quiz-result-title');
+        const descEl = document.getElementById('quiz-result-description');
+        const breakdownEl = document.getElementById('pillars-breakdown');
+
+        if (scoreNumberEl) scoreNumberEl.textContent = totalScore;
+
+        let profileTitle = '';
+        let profileDesc = '';
+
+        if (totalScore >= 22) {
+            profileTitle = '👑 Líder Resiliente y Empático (Nivel Sobresaliente)';
+            profileDesc = 'Tienes un dominio excepcional de tus estados emocionales. Transformas la adversidad en aprendizaje, inspiras confianza en tu equipo y te comunicas de manera asertiva y consciente.';
+        } else if (totalScore >= 18) {
+            profileTitle = '🌟 Alta Madurez Emocional (Nivel Destacado)';
+            profileDesc = 'Posees un gran equilibrio interno y empatía con los demás. Mantienes el autocontrol en la mayoría de situaciones de presión y eres un pilar de estabilidad para tu entorno.';
+        } else if (totalScore >= 14) {
+            profileTitle = '🌱 Equilibrio Emocional en Crecimiento (Nivel Promedio)';
+            profileDesc = 'Cuentas con buenas bases de autoconocimiento. Con prácticas cotidianas de autorregulación y escucha activa, puedes potenciar significativamente tu impacto como líder.';
+        } else {
+            profileTitle = '🔍 Despertar Emocional (Oportunidad de Evolución)';
+            profileDesc = 'Identificar tus emociones es el primer gran paso hacia la maestría personal. Trabajar en técnicas de respiración y comunicación asertiva te brindará herramientas muy valiosas.';
+        }
+
+        if (titleEl) titleEl.textContent = profileTitle;
+        if (descEl) descEl.textContent = profileDesc;
+
+        // Breakdown items
+        if (breakdownEl) {
+            breakdownEl.innerHTML = '';
+            autotestQuestions.forEach((q, idx) => {
+                const s = quizScores[idx] || 3;
+                const pct = (s / 5) * 100;
+                const stat = document.createElement('div');
+                stat.className = 'pillar-mini-stat';
+                stat.innerHTML = `
+                    <div class="title">
+                        <span>${q.pillar}</span>
+                        <span style="color: ${q.color};">${s}/5</span>
+                    </div>
+                    <div class="progress-bar-bg" style="height: 6px;">
+                        <div class="progress-bar-fill" style="width: ${pct}%; background: ${q.color};"></div>
+                    </div>
+                `;
+                breakdownEl.appendChild(stat);
+            });
+        }
+
+        confetti({
+            particleCount: 120,
+            spread: 80,
+            origin: { y: 0.6 },
+            colors: ['#7c3aed', '#0ea5e9', '#f59e0b', '#10b981', '#ffffff']
+        });
+    }
+
+    if (btnRestartQuiz) {
+        btnRestartQuiz.addEventListener('click', () => {
+            currentQuizIndex = 0;
+            quizScores = [];
+            quizResultContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            loadQuizQuestion(0);
+        });
+    }
+
+    // Initialize Quiz
+    loadQuizQuestion(0);
+
+    // Close admin modals when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === adminLoginModal) adminLoginModal.style.display = 'none';
+        if (e.target === adminDashboardModal) adminDashboardModal.style.display = 'none';
+    });
+
 }); // END DOMContentLoaded
+

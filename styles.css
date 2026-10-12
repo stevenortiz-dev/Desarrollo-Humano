@@ -1070,3 +1070,645 @@ textarea:focus { border-color: #fff; }
     .section { padding: 3rem 0; }
     .timer-display span { font-size: 3.5rem !important; }
 }
+
+/* ==========================================================================
+   ADMIN PANEL & EVALUATION STYLES
+   ========================================================================== */
+
+/* Floating Admin Trigger Button */
+.admin-float-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: rgba(18, 18, 24, 0.75);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #f59e0b;
+    border-radius: 50px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(245, 158, 11, 0.15);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-float-btn:hover {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.7);
+    color: #fcd34d;
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(245, 158, 11, 0.3);
+}
+
+.admin-modal-switch {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: center;
+}
+
+.btn-link-subtle {
+    background: none;
+    border: none;
+    color: #f59e0b;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.85;
+    transition: all 0.25s ease;
+}
+
+.btn-link-subtle:hover {
+    opacity: 1;
+    color: #fcd34d;
+    text-decoration: underline;
+}
+
+.btn-icon-eye {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+
+.btn-icon-eye:hover {
+    color: #fff;
+}
+
+/* Wide Admin Dashboard Modal */
+.admin-modal-wide .modal-content {
+    max-width: 960px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: left;
+    padding: 2.2rem;
+    border-radius: 20px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.admin-dash-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-dash-title h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-top: 0.35rem;
+    letter-spacing: -0.02em;
+}
+
+.admin-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #f59e0b;
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.admin-dash-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.btn-sm {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Admin KPIs */
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.admin-stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 1.2rem 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.admin-stat-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    color: #8b5cf6;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-number {
+    font-size: 1.7rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #fff;
+}
+
+.stat-label {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* Admin Responses List */
+.admin-responses-container {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.4rem;
+}
+
+.admin-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+}
+
+.admin-section-header h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.admin-search-input {
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.85rem;
+    outline: none;
+    width: 250px;
+    transition: border-color 0.2s ease;
+}
+
+.admin-search-input:focus {
+    border-color: #8b5cf6;
+}
+
+.admin-responses-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.admin-response-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: all 0.25s ease;
+}
+
+.admin-response-card:hover {
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.admin-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+}
+
+.admin-leader-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-topic-tag {
+    display: inline-block;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.admin-timestamp {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.admin-card-text {
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 3px solid #8b5cf6;
+    padding: 0.9rem 1.1rem;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: #e2e8f0;
+    margin-bottom: 1.1rem;
+}
+
+/* Evaluation Box */
+.admin-eval-box {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.admin-stars {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.admin-star {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.admin-star:hover,
+.admin-star.active {
+    color: #f59e0b;
+    transform: scale(1.1);
+}
+
+.admin-feedback-input {
+    flex: 1;
+    min-width: 220px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+.admin-feedback-input:focus {
+    border-color: #8b5cf6;
+}
+
+.btn-save-eval {
+    background: #8b5cf6;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-save-eval:hover {
+    background: #7c3aed;
+}
+
+.btn-delete-response {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    transition: all 0.2s ease;
+}
+
+.btn-delete-response:hover {
+    background: rgba(239, 68, 68, 0.3);
+    color: #ff8888;
+}
+
+/* ==========================================================================
+   AUTOTEST DE INTELIGENCIA EMOCIONAL STYLES
+   ========================================================================== */
+
+.autotest-card {
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(139, 92, 246, 0.08);
+    padding: 3rem 2.5rem;
+}
+
+.quiz-header {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 1rem 1.4rem;
+}
+
+.quiz-step-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.quiz-question {
+    font-size: 1.45rem;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.quiz-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 1rem;
+}
+
+.quiz-option-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 1.25rem 1rem;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.quiz-option-btn:hover {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.15);
+}
+
+.quiz-option-btn.selected {
+    background: #8b5cf6;
+    border-color: #8b5cf6;
+    color: #fff;
+    transform: scale(1.03);
+}
+
+.option-score {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.option-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Quiz Result */
+.result-score-circle {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, rgba(0,0,0,0) 70%);
+    padding: 1.5rem 2.5rem;
+    border-radius: 50px;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    margin-bottom: 1rem;
+}
+
+.score-number {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+}
+
+.score-total {
+    font-size: 1.4rem;
+    color: var(--text-muted);
+}
+
+.pillars-breakdown-box {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    text-align: left;
+}
+
+.pillar-mini-stat {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+}
+
+.pillar-mini-stat .title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Print Styles for Admin Report Export */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #admin-dashboard-modal,
+    #admin-dashboard-modal * {
+        visibility: visible;
+    }
+    #admin-dashboard-modal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: #fff !important;
+        color: #000 !important;
+    }
+    .admin-dash-actions, .admin-filter-tools, .btn-save-eval, .btn-delete-response, .admin-feedback-input {
+        display: none !important;
+    }
+    .admin-response-card {
+        border: 1px solid #ccc !important;
+        color: #000 !important;
+        background: #f9f9f9 !important;
+        page-break-inside: avoid;
+        margin-bottom: 15px;
+    }
+    .admin-card-text {
+        color: #222 !important;
+        background: #eee !important;
+    }
+}
+
+/* ==========================================================================
+   CASE STUDY & ROULETTE ENHANCEMENTS
+   ========================================================================== */
+
+#case-study-box {
+    max-width: 680px;
+    margin: 0 auto 2rem;
+    padding: 2rem;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    text-align: left;
+    transition: all 0.3s ease;
+}
+
+.topic-tag-large {
+    display: inline-block;
+    padding: 0.35rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: rgba(124, 58, 237, 0.2);
+    border: 1px solid rgba(124, 58, 237, 0.5);
+    color: #c4b5fd;
+    margin-bottom: 0.5rem;
+}
+
+.case-scenario {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 4px solid #f59e0b;
+    border-radius: 0 12px 12px 0;
+    padding: 1.1rem 1.3rem;
+}
+
+.case-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #f59e0b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+}
+
+.case-text {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #f3f4f6;
+    font-weight: 400;
+}
+
+.case-questions {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 1.1rem 1.3rem;
+}
+
+.questions-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #38bdf8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+}
+
+.case-questions-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 0;
+}
+
+.case-questions-list li {
+    position: relative;
+    padding-left: 24px;
+    font-size: 0.95rem;
+    color: #e2e8f0;
+    line-height: 1.5;
+}
+
+.case-questions-list li::before {
+    content: "➔";
+    position: absolute;
+    left: 0;
+    color: #38bdf8;
+    font-weight: bold;
+}
+
+/* Live sync glow highlight on new cards */
+@keyframes syncHighlight {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 rgba(16, 185, 129, 0); }
+    50% { transform: scale(1.03); box-shadow: 0 0 30px rgba(16, 185, 129, 0.6); border-color: #10b981; }
+    100% { transform: scale(1); box-shadow: 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.card-new-sync {
+    animation: syncHighlight 1.2s ease-out;
+}
+
